@@ -2,6 +2,7 @@ require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
+const jwt = require("jsonwebtoken")
 const app = express()
 const port = process.env.PORT || 5000
 
@@ -11,7 +12,7 @@ app.use(cors())
 
 
 
-const uri = "mongodb+srv://Bistro_Boss_2:VNfd2AKDkj4BqcYK@bistoboss.7ys6amt.mongodb.net/?retryWrites=true&w=majority&appName=BistoBoss";
+const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS }@bistoboss.7ys6amt.mongodb.net/?retryWrites=true&w=majority&appName=BistoBoss`;
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -28,6 +29,13 @@ async function run() {
         const ReviwsCollaction = client.db("BistroBoss").collection("Review")
         const UserCollaction = client.db("BistroBoss").collection("User")
         const CardCollaction = client.db("BistroBoss").collection("Card")
+        app.post("/jwt", async (req, res) => {
+            const email = req.body;
+            const token = jwt.sign(email, process.env.SECRET, {
+              expiresIn: "1h"
+            })
+            res.send({ token })
+          })
         app.get("/menus", async (req, res) => {
             const result = await MenuCollaction.find().toArray()
             res.send(result)
@@ -36,7 +44,6 @@ async function run() {
             const id = req.params.id
             const query = { _id: new ObjectId(id) }
             const result = await MenuCollaction.deleteOne(query)
-            console.log(result)
             res.send(result)
         })
         app.get("/menu/:id", async (req, res) => {
@@ -90,6 +97,10 @@ async function run() {
             }
             const result = await UserCollaction.updateOne(query, update)
             res.send(result)
+        })
+        app.get("/user/:email", async (req, res) => {
+            const email = req?.params?.email
+            console.log(email)
         })
         app.post("/card", async (req, res) => {
             const body = req.body
