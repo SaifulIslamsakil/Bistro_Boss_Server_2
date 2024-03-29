@@ -32,6 +32,35 @@ async function run() {
             const result = await MenuCollaction.find().toArray()
             res.send(result)
         })
+        app.delete("/manu_item_delete/:id", async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await MenuCollaction.deleteOne(query)
+            console.log(result)
+            res.send(result)
+        })
+        app.get("/menu/:id", async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await MenuCollaction.findOne(query)
+            res.send(result)
+        })
+        app.patch("/update_menu/:id", async (req, res) => {
+            const id = req.params.id
+            const body = req.body
+            const query = { _id: new ObjectId(id) }
+            const update = {
+                $set: {
+                    name: body.name,
+                    price: body.price,
+                    category: body.category,
+                    recipe: body.recipe
+                }
+            }
+            const result = await MenuCollaction.updateOne(query, update)
+            res.send(result)
+
+        })
         app.get("/review", async (req, res) => {
             const result = await ReviwsCollaction.find().toArray()
             res.send(result)
@@ -54,11 +83,11 @@ async function run() {
         })
         app.delete("/card/:id", async (req, res) => {
             const id = req.params.id
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await CardCollaction.deleteOne(query)
             res.send(result)
         })
-        app.post("/add_item", async (req, res)=>{
+        app.post("/add_item", async (req, res) => {
             const body = req.body
             const result = await MenuCollaction.insertOne(body)
             res.send(result)
