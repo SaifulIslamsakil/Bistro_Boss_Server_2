@@ -27,6 +27,7 @@ async function run() {
         const ManuCollaction = client.db("BistroBoss").collection("Menus")
         const ReviwsCollaction = client.db("BistroBoss").collection("Review")
         const UserCollaction = client.db("BistroBoss").collection("User")
+        const CardCollaction = client.db("BistroBoss").collection("Card")
         app.get("/menus", async (req, res) => {
             const result = await ManuCollaction.find().toArray()
             res.send(result)
@@ -38,6 +39,11 @@ async function run() {
         app.post("/user", async (req,res)=>{
             const body = req.body
             const result = await UserCollaction.insertOne(body)
+            res.send(result)
+        })
+        app.post("/card", async (req, res)=>{
+            const body = req.body
+            const result = await CardCollaction.insertOne(body)
             res.send(result)
         })
         await client.db("admin").command({ ping: 1 });
