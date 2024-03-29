@@ -70,6 +70,27 @@ async function run() {
             const result = await UserCollaction.insertOne(body)
             res.send(result)
         })
+        app.get("/user", async (req, res) => {
+            const result = await UserCollaction.find().toArray()
+            res.send(result)
+        })
+        app.delete("/user/:id", async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await UserCollaction.deleteOne(query)
+            res.send(result)
+        })
+        app.patch("/user/:id", async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const update = {
+                $set: {
+                    Role: "Admin"
+                }
+            }
+            const result = await UserCollaction.updateOne(query, update)
+            res.send(result)
+        })
         app.post("/card", async (req, res) => {
             const body = req.body
             const result = await CardCollaction.insertOne(body)
