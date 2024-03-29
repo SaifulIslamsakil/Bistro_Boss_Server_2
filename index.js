@@ -46,6 +46,12 @@ async function run() {
             const result = await CardCollaction.insertOne(body)
             res.send(result)
         })
+        app.get("/card", async (req,res)=>{
+            const email = req.query.email
+            const query = {userEmail:email}
+            const result = await CardCollaction.find(query).toArray()
+            res.send(result)
+        })
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
