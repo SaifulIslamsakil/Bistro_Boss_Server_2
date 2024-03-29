@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const app = express()
@@ -24,32 +24,43 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-        const ManuCollaction = client.db("BistroBoss").collection("Menus")
+        const MenuCollaction = client.db("BistroBoss").collection("Menus")
         const ReviwsCollaction = client.db("BistroBoss").collection("Review")
         const UserCollaction = client.db("BistroBoss").collection("User")
         const CardCollaction = client.db("BistroBoss").collection("Card")
         app.get("/menus", async (req, res) => {
-            const result = await ManuCollaction.find().toArray()
+            const result = await MenuCollaction.find().toArray()
             res.send(result)
         })
         app.get("/review", async (req, res) => {
             const result = await ReviwsCollaction.find().toArray()
             res.send(result)
         })
-        app.post("/user", async (req,res)=>{
+        app.post("/user", async (req, res) => {
             const body = req.body
             const result = await UserCollaction.insertOne(body)
             res.send(result)
         })
-        app.post("/card", async (req, res)=>{
+        app.post("/card", async (req, res) => {
             const body = req.body
             const result = await CardCollaction.insertOne(body)
             res.send(result)
         })
-        app.get("/card", async (req,res)=>{
+        app.get("/card", async (req, res) => {
             const email = req.query.email
-            const query = {userEmail:email}
+            const query = { userEmail: email }
             const result = await CardCollaction.find(query).toArray()
+            res.send(result)
+        })
+        app.delete("/card/:id", async (req, res) => {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await CardCollaction.deleteOne(query)
+            res.send(result)
+        })
+        app.post("/add_item", async (req, res)=>{
+            const body = req.body
+            const result = await MenuCollaction.insertOne(body)
             res.send(result)
         })
         await client.db("admin").command({ ping: 1 });
