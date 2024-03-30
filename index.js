@@ -6,13 +6,13 @@ const jwt = require("jsonwebtoken")
 const app = express()
 const port = process.env.PORT || 5000
 
-// VNfd2AKDkj4BqcYK
+
 app.use(express.json())
 app.use(cors())
 
 
 
-const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS }@bistoboss.7ys6amt.mongodb.net/?retryWrites=true&w=majority&appName=BistoBoss`;
+const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@bistoboss.7ys6amt.mongodb.net/?retryWrites=true&w=majority&appName=BistoBoss`;
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -21,6 +21,22 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+// middelWare
+const tokenVarifay = (req, res, next) => {
+    if (!req.headers.authorization) {
+        return res.status(401).send({ messses: "forbinen" })
+    }
+    const token = req.headers.authorization.split(' ')[1]
+    if (token) {
+        jwt.verify(token, process.env.SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(401).send({ messses: "forbinen" })
+            }
+            req.user = decoded
+            next()
+        })
+    }
+}
 
 async function run() {
     try {
@@ -32,10 +48,10 @@ async function run() {
         app.post("/jwt", async (req, res) => {
             const email = req.body;
             const token = jwt.sign(email, process.env.SECRET, {
-              expiresIn: "1h"
+                expiresIn: "1h"
             })
             res.send({ token })
-          })
+        })
         app.get("/menus", async (req, res) => {
             const result = await MenuCollaction.find().toArray()
             res.send(result)
@@ -98,10 +114,7 @@ async function run() {
             const result = await UserCollaction.updateOne(query, update)
             res.send(result)
         })
-        app.get("/user/:email", async (req, res) => {
-            const email = req?.params?.email
-            console.log(email)
-        })
+
         app.post("/card", async (req, res) => {
             const body = req.body
             const result = await CardCollaction.insertOne(body)
@@ -124,6 +137,24 @@ async function run() {
             const result = await MenuCollaction.insertOne(body)
             res.send(result)
         })
+
+        // app.post("/create-payment-intent", async (req, res) => {
+        //     const { price } = req.body
+        //     const amount = parseFloat(price * 100)
+        //     console.log(amount)
+
+        //     const paymentIntent = await stripe.paymentIntents.create({
+        //         amount: amount,
+        //         currency: "usd",
+        //         payment_method_types: [
+        //             "card"
+        //         ],
+        //     })
+        //     res.send({
+        //         clientSecret: paymentIntent.client_secret
+        //     })
+
+        // })
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
